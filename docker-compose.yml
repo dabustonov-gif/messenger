@@ -1,0 +1,23 @@
+services:
+  messenger:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    environment:
+      MSG_RETENTION_DAYS: "30"   # сколько хранить недоставленные сообщения и файлы
+      MSG_MAX_FILE_MB: "50"
+    expose:
+      - "8000"
+
+  caddy:                          # TLS-терминатор перед сервером
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy_data:/data
+      # Вариант Б (Tailscale): раскомментируйте
+      # - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+    depends_on: [messenger]

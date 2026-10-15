@@ -1,0 +1,27 @@
+# Замените адрес на IP/имя вашего сервера в локальной сети или Tailscale,
+# например 192.168.1.50 или myserver.tailnet-xxxx.ts.net
+{
+	# Для LAN: Caddy создаёт собственный центр сертификации.
+	# Его корневой сертификат (caddy_data/caddy/pki/authorities/local/root.crt)
+	# нужно положить в приложение: android/app/src/main/res/raw/server_ca.crt
+	local_certs
+}
+
+https://192.168.1.50 {
+	tls internal
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy messenger:8000
+}
+
+# --- Вариант Б: Tailscale -------------------------------------------------
+# Удалите блок выше (и local_certs), раскомментируйте ниже и в docker-compose.yml
+# пробросьте сокет tailscaled — Caddy сам получит сертификат для *.ts.net.
+#
+# myserver.your-tailnet.ts.net {
+# 	request_body {
+# 		max_size 60MB
+# 	}
+# 	reverse_proxy messenger:8000
+# }
